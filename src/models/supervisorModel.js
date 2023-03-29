@@ -11,7 +11,6 @@ export default types
         animated: false
     }))
     .actions(self => ({
-
         setAnimate(bool) {
             self.animated = bool
         },

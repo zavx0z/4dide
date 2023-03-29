@@ -9,14 +9,12 @@ const universeAction = types
     .volatile(self => ({
         fast: null,
         universeBB: null,
-    }))
-    .views(self => ({
-        get universeHeight() {
-            console.log(self.universeBB)
-            return 5
-        }
+        koef: .5
     }))
     .actions(self => ({
+        setSpace(value) {
+            self.space = value
+        },
         setUniverseBB(bb) {
             self.bb = bb
         },
@@ -66,6 +64,12 @@ const universeAction = types
             }
             world.child.forEach(child => this._expand(child, world.position))
         },
+        expandAll() {
+            const {worlds} = getParent(self, 1)
+            this.setFast(worlds)
+            worlds.child.forEach(world => this._expand(world, worlds.position))
+            this.setFast(null)
+        },
         expand(world, camera) {
             const {worlds} = getParent(self, 1)
             this.updateExpandedParams(world)
@@ -77,7 +81,8 @@ const universeAction = types
             const {child, size} = world
             const fullHeight = this.worldFullHeight(world)
             const visibleWidth = fullHeight * camera.aspect
-            const x = child.length ? (size * 0.5) - (visibleWidth * 0.5) : 0
+            console.log(visibleWidth, size)
+            const x = child.length ? Math.abs((size * 0.5) - (visibleWidth * 0.5)) : 0
             const y = -this.worldCenterWithChild(world, fullHeight)
             const z = supervisorStore.computeDepth(camera.fov, fullHeight) + size * 0.5
             supervisorStore.setPosition(x, y, z)

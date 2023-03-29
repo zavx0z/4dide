@@ -1,31 +1,31 @@
 import React, {useRef} from 'react'
 import {inject, observer} from 'mobx-react'
 import {useFrame} from "@react-three/fiber"
-import {OrbitControls, PerspectiveCamera} from "@react-three/drei"
+import {PerspectiveCamera} from "@react-three/drei"
+import {supervisorMove} from "./actions/supervisorActions"
 
-const Supervisor = ({children, universe: {supervisor}}) => {
+
+const Supervisor = ({children, universe: {supervisor, action}}) => {
     const ref = useRef(null)
     useFrame(() => {
-        // .rotation.setFromQuaternion
-        // console.log(supervisor.position)
-        // console.log(supervisor.rotation)
+        // ref.current current.rotation.setFromQuaternion
         // ref.current.rotation.setRotationFromEuler(supervisor.rotation)
-        // ref.current.rotation.setFromVector3(supervisor.rotation)
-        // supervisorMove(ref.current, supervisor.position,
-        //     () => !supervisor.animated && supervisor.setAnimate(true),
-        //     () => supervisor.animated && supervisor.setAnimate(false))
+        // ref.current.position.lerp([data.position.x, data.position.y, data.position.z], 1)
+        ref.current.rotation.setFromVector3(supervisor.rotation)
+        supervisorMove(ref.current, supervisor.position,
+            () => !supervisor.animated && supervisor.setAnimate(true),
+            () => supervisor.animated && supervisor.setAnimate(false))
         // console.log(ref.current.rotation)
-        // ref.current.position.lerp(supervisor.position, 1)
+        ref.current.position.lerp(supervisor.position, 1)
     })
     return <>
         <PerspectiveCamera
             ref={ref}
-            fov={11.5}
-            position={[0, 0, 100]}
+            fov={14}
             makeDefault // Registers it as the default camera system-wide (default=false)
         >
         </PerspectiveCamera>
-        <OrbitControls/>
+        {/*<OrbitControls/>*/}
         {children}
     </>
 }

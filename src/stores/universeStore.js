@@ -1,49 +1,38 @@
 import universeModel from "../models/universeModel"
-import atomStore from "./atomStore"
+import worldsStore from "./worldsStore"
 import supervisorStore from "./supervisorStore"
 import {addMiddleware} from "mobx-state-tree"
 
 import bigBoomAction from "../actions/bigBoomAction"
-import {setExpand, updatePositionsAction} from "../actions/universeActions"
+import universeAction from "../actions/universeAction"
 
-const {atoms, maxLevel} = bigBoomAction(atomStore)
+process.env.REACT_APP_LOGGING && console.log(`[universeStore]: INIT`)
+const {atoms, maxLevel} = bigBoomAction(worldsStore)
+
 const universeStore = universeModel.create({
-    supervisor: supervisorStore,
-    worlds: atomStore,
-    atoms: atoms,
-    maxLevel: maxLevel,
+    supervisor: supervisorStore, // камера
+    worlds: worldsStore, // атомы в рекурсии
+    atoms: atoms, // пути атомов (mobx-state-tree) в мирах
+    maxLevel: maxLevel, // рассчитывается в действии инициализации BigBum
+    action: universeAction.create({
+        space: .1 // расстояние между мирами
+    })
 })
-addMiddleware(atomStore, (call, next) => {
-    const worldFullHeight = (world) => {
-        const {position, size, child} = world
-        if (child.length) {
-            const extremePointUp = position.y + size / 2
-            const fastAtom = child[child.length - 1]
-            const extremePointDown = Math.abs(fastAtom.position.y) + fastAtom.size / 2
-            return extremePointUp + extremePointDown
-        } else return size
-    }
-    const worldCenterWithChild = (world, fullHeight) => {
-        const {position, size} = world
-        const extremePointUp = Math.abs(position.y) - size / 2
-        return extremePointUp + fullHeight / 2
-    }
+process.env.REACT_APP_LOGGING && console.log("========================================================================")
+
+addMiddleware(worldsStore, (call, next) => {
     const {name, args, context} = call
     switch (name) {
         case 'setActive':
             const active = args[0]
             if (active) {
                 const camera = args[1]
-                setExpand(context)
-                updatePositionsAction()
-                const {child, size} = context
-                const fullHeight = worldFullHeight(context)
-                const visibleWidth = fullHeight * camera.aspect
-                const x = child.length ? (size * 0.5) - (visibleWidth * 0.5) : 0
-                const y = -worldCenterWithChild(context, fullHeight)
-                const z = supervisorStore.computeDepth(camera.fov, fullHeight) + size * 0.5
-                supervisorStore.setPosition(x, y, z)
+                process.env.REACT_APP_LOGGING && console.log(`[UNIVERSE ACTION] setExpand ${context['name']}: установка видимости`)
+                // universeStore.action['orbit'](context, camera)
+                universeStore.action['expand'](context, camera)
+                process.env.REACT_APP_LOGGING && console.log(`[AtomStore]: active - ${context['name']}`)
             } else {
+                process.env.REACT_APP_LOGGING && console.log(`[AtomStore]: not active - ${context['name']}`)
                 context['child'].forEach(world => world.setExpanded(false))
             }
             break
