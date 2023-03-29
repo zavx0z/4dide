@@ -1,6 +1,5 @@
 import {getRoot, types} from "mobx-state-tree"
 import {Euler, MathUtils, Vector3} from "three"
-import sio from "../sio"
 
 export default types
     .model({
@@ -12,15 +11,7 @@ export default types
         animated: false
     }))
     .actions(self => ({
-        afterCreate() {
-            sio.on(self['channel'], (data, callback) => {
-                const {position, rotation} = data['supervisor']
-                this.setPosition(...position)
-                this.setRotation(...rotation)
-                callback()
-            })
-            sio.emit(self['channel'], self['channel'])
-        },
+
         setAnimate(bool) {
             self.animated = bool
         },

@@ -11,8 +11,8 @@ export const Space = ({children}) => {
     return <>
         <Canvas
             style={styles}
-            shadowMap
-            invalidateFrameloop={true}
+            // shadowMap
+            // invalidateFrameloop={true}
             onCreated={() => universeStore.toggleReady()}
         >
             <Router>

@@ -1,6 +1,0 @@
-redis
-gunicorn
-eventlet
-flask
-flask_socketio
-msgpack_numpy
