@@ -15,5 +15,7 @@ export const Worlds = ({worlds}) => {
         viewsGenerator(world)
         return routes
     }
-    return <Routes>{generator(worlds)}</Routes>
+    return <Routes>
+        {generator(worlds)}
+    </Routes>
 }

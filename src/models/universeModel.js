@@ -1,21 +1,32 @@
 import worldModel from "./worldModel"
 import {getRelativePath, resolvePath, types} from "mobx-state-tree"
-import supervisorModel from "./supervisorModel"
-import universeAction from "../actions/universeAction"
+import supervisorModel from "../features/@react-three-mst/models/supervisorModel"
 
 const universeModel = types
     .model({
         worlds: worldModel, // атомы в рекурсии
         atoms: types.array(types.string), // пути атомов в мирах
         supervisor: supervisorModel,
-        action: universeAction,
         maxLevel: 0,
+        space: 0.004,
+        backgroundColor: "#fff",
+        worldSize: .005,
+        worldSpace: .005,
     })
     .volatile(self => ({
         expanded: false,
         ready: false, // флаг, служит для запуска
     }))
     .actions(self => ({
+        setWorldSpace: (space) => {
+            self.worldSpace = space
+        },
+        setWorldSize: (size) => {
+            self.worldSize = size
+        },
+        setBackgroundColor(color) {
+            self.backgroundColor = color
+        },
         toggleReady() {
             process.env.REACT_APP_LOGGING && console.log('[UNIVERSE]: set ready')
             self.ready = true

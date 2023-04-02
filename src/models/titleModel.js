@@ -10,10 +10,8 @@ const title = types
         },
         get titlePosition() {
             const {size} = self
-            return [-(size / 2) - 0.04, (size / 2), size / 2]
-        },
-        get topCenterPosition() {
-            return [0, 0, 0]
+            return [0, 0, size / 2]
+            // return [-(size / 2) - 0.04, (size / 2), size / 2]
         },
         get titleVisible() {
             const {level, active} = self

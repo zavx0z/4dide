@@ -1,24 +1,18 @@
-import {getRoot, types} from "mobx-state-tree"
-import {Vector3} from "three"
+import {getParent, getRoot, types} from "mobx-state-tree"
 import title from "./titleModel"
-import aether from "./aetherModels"
+import baseModel from "../features/@react-three-mst/models/baseModel"
 
-const worlds = types.compose(types
+const worlds = types.compose(baseModel, types
     .model({
         name: '',
         child: types.array(types.late(() => worlds)),
         path: '',
         level: 0,
         local: 0,
-        aether: types.array(aether)
     })
     .volatile(self => ({
-        position: new Vector3(0, 0, 0),
-        rotation: new Vector3(0, 0, 0),
-        scale: new Vector3(0, 0, 0),
         expanded: false, // видимость
         active: false,
-        hover: false,
     }))
     .actions(self => ({
         setActive(bool) {
@@ -36,25 +30,13 @@ const worlds = types.compose(types
         setPath(path) {
             self.path = path
         },
-        setPosition(x, y, z) {
-            self.position = new Vector3(x, y, z)
-        },
-        setHover(e, bool) {
-            e.stopPropagation()
-            self.hover = bool
-        },
         handleClick() {
         },
     }))
     .views(self => ({
-        get color() {
-            const percent = 144 / getRoot(self)['maxLevel']
-            const blue = self['level'] * percent.toFixed(0)
-            // const red = parseInt(255 - self['level'] * percent)
-            return `rgb(${blue}, ${blue}, ${blue})%)`
-        },
         get size() {
-            return 1 / self['level']
+            const {worldSize} = getRoot(self)
+            return worldSize / self['level']
         },
         get title() {
             return self.name
@@ -66,11 +48,29 @@ const worlds = types.compose(types
             const {size} = self
             return [size, size, size]
         },
+        get parent() {
+            let parent
+            try {
+                parent = getParent(self, 2)
+                if (parent.$treenode.type.name !== self.$treenode.type.name)
+                    parent = null
+            } catch (e) {
+                return null
+            }
+            return parent
+        },
+        get parentActive() {
+            try {
+                return getParent(self, 2)['active']
+            } catch (_) {
+                return true
+            }
+        }
         // get jsonPath() {
         //     return getRelativePath(getRoot(self).worlds, self)
         // }
     })), title
-)
+).named('world')
 
 
 export default worlds
